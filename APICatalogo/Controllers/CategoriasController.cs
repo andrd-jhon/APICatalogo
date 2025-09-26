@@ -3,10 +3,11 @@ using APICatalogo.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace APICatalogo.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class CategoriasController : ControllerBase
     {
@@ -17,21 +18,27 @@ namespace APICatalogo.Controllers
             _context = context;
         }
 
+        [HttpGet("Produtos")]
+        public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
+        {
+            return _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToList(); ;
+        }
+
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            return _context.Categorias.ToList();
+            return _context.Categorias.AsNoTracking().ToList();
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            var categorias = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
 
-            if (categorias is null)
+            if (categoria is null)
                 return NotFound("Produto não existe em nossa base de dados.");
 
-            return categorias;
+            return categoria;
         }
 
         [HttpPost]
@@ -61,15 +68,15 @@ namespace APICatalogo.Controllers
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            var categorias = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
 
-            if (categorias is null)
+            if (categoria is null)
                 return NotFound("Produto não localizado.");
 
-            _context.Categorias.Remove(categorias);
+            _context.Categorias.Remove(categoria);
             _context.SaveChanges();
 
-            return Ok(categorias);
+            return Ok(categoria);
         }
     }
 }
