@@ -27,18 +27,37 @@ namespace APICatalogo.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            return _context.Categorias.AsNoTracking().ToList();
+            try
+            {
+                //throw new DataMisalignedException();
+                return _context.Categorias.AsNoTracking().ToList();
+
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar sua solicitação.");
+            }
+
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+            try
+            {
+                var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
 
-            if (categoria is null)
-                return NotFound("Produto não existe em nossa base de dados.");
+                if (categoria is null)
+                    return NotFound("Produto não existe em nossa base de dados.");
 
-            return categoria;
+                return categoria;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar sua solicitação.");
+            }
+
+
         }
 
         [HttpPost]

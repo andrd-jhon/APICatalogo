@@ -31,12 +31,12 @@ namespace APICatalogo.Controllers
         [HttpGet("{id:int}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            var produtos = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+            var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
 
-            if (produtos is null)
+            if (produto is null)
                 return NotFound("Produto não existe em nossa base de dados.");
 
-            return produtos;
+            return produto;
         }
 
         [HttpPost]
