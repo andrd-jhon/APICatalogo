@@ -16,6 +16,16 @@ namespace APICatalogo.Controllers
         {
             _context = context;
         }
+        [HttpGet("primeiro")] // acessivel por meio do caminho ...produtos/primeiro
+        public ActionResult<Produto> GetPrimeiro()
+        {
+            var produtos = _context.Produtos.FirstOrDefault();
+
+            if (produtos is null)
+                return NotFound();
+
+            return produtos;
+        }
 
         [HttpGet]
         public ActionResult<IEnumerable<Produto>> Get()
