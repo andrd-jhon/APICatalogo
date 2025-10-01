@@ -69,7 +69,7 @@ namespace APICatalogo.Controllers
             _context.Categorias.Add(categoria);
             _context.SaveChanges();
 
-            return new CreatedAtRouteResult("ObterProduto", new { id = categoria.CategoriaId }, categoria);
+            return new CreatedAtRouteResult("ObterCategoria", new { id = categoria.CategoriaId }, categoria);
         }
 
         [HttpPut("{id:int}")]
