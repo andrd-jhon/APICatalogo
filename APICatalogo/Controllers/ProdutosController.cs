@@ -16,11 +16,14 @@ namespace APICatalogo.Controllers
         {
             _context = context;
         }
-        [HttpGet("/primeiro")] // acessivel por meio do caminho ...produtos/primeiro
-        [HttpGet("teste")]
-        [HttpGet("/segundo")]
-        public ActionResult<Produto> GetPrimeiro()
+        //[HttpGet("/primeiro")] // acessivel por meio do caminho ...produtos/primeiro
+        //[HttpGet("teste")]
+        //[HttpGet("/segundo")]
+        [HttpGet("{valor:alpha:length(5)}")]
+        public ActionResult<Produto> GetPrimeiro(string valor)
         {
+            string teste = valor.ToString();
+
             var produtos = _context.Produtos.FirstOrDefault();
 
             if (produtos is null)
@@ -40,13 +43,13 @@ namespace APICatalogo.Controllers
             return produtos;
         }
 
-        [HttpGet("{id:int}/{param2=teste}", Name = "ObterProduto")]
-        public ActionResult<Produto> Get(int id, string param2)
+        [HttpGet("{id:int:min(1)}", Name = "ObterProduto")]
+        public ActionResult<Produto> Get(int id)
         {
-            var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
+            var produto = _context.Produtos.AsNoTracking().FirstOrDefault(p => p.ProdutoId == id);
 
             if (produto is null)
-                return NotFound("Produto não existe em nossa base de dados.");
+                return NotFound();
 
             return produto;
         }
