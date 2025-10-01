@@ -1,4 +1,6 @@
 using APICatalogo.Context;
+using APICatalogo.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -16,6 +18,15 @@ string? mySqlConnection = builder.Configuration.GetConnectionString("DefaultConn
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection,
         ServerVersion.AutoDetect(mySqlConnection)));
+
+builder.Services.AddTransient<IMeuServico, MeuServico>(); /*Esse trecho de codigo indica que toda vez que uma classe
+                                                           solicitar essa dependência, ela será instanciada!*/
+
+builder.Services.Configure<ApiBehaviorOptions>(options => /*Esse trecho de codigo indica que a injeção de dependencias explicita nos controlladores
+                                                           está desabilitada (impedindo a injeção sem o uso do [FromServices])*/
+{
+    options.DisableImplicitFromServicesParameters = true;
+});
 
 var app = builder.Build();
 
