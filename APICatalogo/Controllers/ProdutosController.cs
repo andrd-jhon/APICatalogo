@@ -16,14 +16,12 @@ namespace APICatalogo.Controllers
         {
             _context = context;
         }
-        //[HttpGet("/primeiro")] // acessivel por meio do caminho ...produtos/primeiro
+        [HttpGet("/primeiro")] // acessivel por meio do caminho ...produtos/primeiro
         //[HttpGet("teste")]
         //[HttpGet("/segundo")]
-        [HttpGet("{valor:alpha:length(5)}")]
+        //[HttpGet("{valor:alpha:length(5)}")]
         public ActionResult<Produto> GetPrimeiro(string valor)
         {
-            string teste = valor.ToString();
-
             var produtos = _context.Produtos.FirstOrDefault();
 
             if (produtos is null)
@@ -33,9 +31,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> Get()
+        public async Task<ActionResult<IEnumerable<Produto>>> Get()
         {
-            var produtos = _context.Produtos.ToList();
+            var produtos = await _context.Produtos.ToListAsync();
 
             if (produtos is null)
                 return NotFound();
