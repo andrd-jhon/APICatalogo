@@ -15,6 +15,9 @@ builder.Services.AddSwaggerGen();
 
 string? mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
+string? valor1 = builder.Configuration["Chave1"];
+string? s1Valor2 = builder.Configuration["Secao1:Chave2"];
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection,
         ServerVersion.AutoDetect(mySqlConnection)));
