@@ -1,5 +1,6 @@
 using APICatalogo.Context;
 using APICatalogo.Extensions;
+using APICatalogo.Filters;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,8 @@ string? s1Valor2 = builder.Configuration["Secao1:Chave2"];
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection,
         ServerVersion.AutoDetect(mySqlConnection)));
+
+builder.Services.AddScoped<APILoggingFilter>();
 
 builder.Services.AddTransient<IMeuServico, MeuServico>(); /*Esse trecho de codigo indica que toda vez que uma classe
                                                            solicitar essa dependência, ela será instanciada!*/
@@ -48,12 +51,12 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.Use(async (context, next) =>
-{
-    //
-    await next(context);
-    //
-});
+//app.Use(async (context, next) =>
+//{
+//    //
+//    await next(context);
+//    //
+//});
 
 //app.Run(async (context) =>
 //{
