@@ -58,22 +58,15 @@ namespace APICatalogo.Controllers
         [ServiceFilter(typeof(APILoggingFilter))]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            try
-            {
-                //throw new DataMisalignedException();
-                return _context.Categorias.AsNoTracking().ToList();
-
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar sua solicitação.");
-            }
-
+            //throw new DataMisalignedException();
+            return _context.Categorias.AsNoTracking().ToList();
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
+            //throw new ArgumentException("Ocorreu um erro no tratamento do request.");
+
             //throw new Exception("Exceção ao retornar a categoria pelo id.");
             //string[] teste = null;
 
@@ -82,26 +75,18 @@ namespace APICatalogo.Controllers
 
             //}
 
-            _logger.LogInformation($"######## GET api/categorias/id = {id} #########");
+            //_logger.LogInformation($"######## GET api/categorias/id = {id} #########");
 
-            try
+          
+            var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+
+            if (categoria is null)
             {
-                var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
-
-                if (categoria is null)
-                {
-                    _logger.LogInformation($"######## GET api/categorias/id = {id} NOT FOUND #########");
-                    return NotFound("Produto não existe em nossa base de dados.");
-                }
-
-                return categoria;
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocorreu um problema ao tratar sua solicitação.");
+                _logger.LogInformation($"######## GET api/categorias/id = {id} NOT FOUND #########");
+                return NotFound("Produto não existe em nossa base de dados.");
             }
 
-
+            return categoria;
         }
 
         [HttpPost]

@@ -25,6 +25,8 @@ namespace APICatalogo.Controllers
         {
             var produtos = _context.Produtos.FirstOrDefault();
 
+            throw new Exception("Exceção teste.");
+
             if (produtos is null)
                 return NotFound();
 
