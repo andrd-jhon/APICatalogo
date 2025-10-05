@@ -15,11 +15,13 @@ namespace APICatalogo.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly ILogger _logger;
 
-        public CategoriasController(AppDbContext context, IConfiguration configuration)
+        public CategoriasController(AppDbContext context, IConfiguration configuration, ILogger<CategoriasController> logger)
         {
             _context = context;
             _configuration = configuration;
+            _logger = logger;
         }
 
         [HttpGet("LerArquivosConfiguracao")]
@@ -47,6 +49,8 @@ namespace APICatalogo.Controllers
         [HttpGet("Produtos")]
         public ActionResult<IEnumerable<Categoria>> GetCategoriasProdutos()
         {
+            _logger.LogInformation("######## GET api/categorias/produtos #########");
+
             return _context.Categorias.AsNoTracking().Include(p => p.Produtos).ToList(); ;
         }
 
@@ -78,13 +82,17 @@ namespace APICatalogo.Controllers
 
             //}
 
+            _logger.LogInformation($"######## GET api/categorias/id = {id} #########");
 
             try
             {
                 var categoria = _context.Categorias.FirstOrDefault(p => p.CategoriaId == id);
 
                 if (categoria is null)
+                {
+                    _logger.LogInformation($"######## GET api/categorias/id = {id} NOT FOUND #########");
                     return NotFound("Produto não existe em nossa base de dados.");
+                }
 
                 return categoria;
             }
