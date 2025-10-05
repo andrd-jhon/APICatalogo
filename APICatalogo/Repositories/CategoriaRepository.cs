@@ -38,7 +38,12 @@ namespace APICatalogo.Repositories
 
         public Categoria GetCategoria(int id)
         {
-            return _dbContext.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+            var categoria = _dbContext.Categorias.FirstOrDefault(p => p.CategoriaId == id);
+
+            if (categoria is null)
+                throw new NullReferenceException();
+
+            return categoria;
         }
 
         public IEnumerable<Categoria> GetCategorias()
