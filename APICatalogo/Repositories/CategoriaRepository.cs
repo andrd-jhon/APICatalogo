@@ -1,4 +1,5 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.Interfaces;
 using APICatalogo.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

@@ -1,6 +1,7 @@
 using APICatalogo.Context;
 using APICatalogo.Extensions;
 using APICatalogo.Filters;
+using APICatalogo.Interfaces;
 using APICatalogo.Logging;
 using APICatalogo.Repositories;
 using APICatalogo.Services;

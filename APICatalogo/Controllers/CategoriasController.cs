@@ -1,7 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Filters;
+using APICatalogo.Interfaces;
 using APICatalogo.Models;
-using APICatalogo.Repositories;
 using APICatalogo.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
