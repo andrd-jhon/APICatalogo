@@ -1,13 +1,9 @@
 ﻿using APICatalogo.Models;
 
-namespace APICatalogo.Repositories
+namespace APICatalogo.Interfaces
 {
-    public interface IProdutoRepository 
+    public interface IProdutoRepository : IRepository<Produto>
     {
-        IQueryable<Produto> GetProdutos();
-        Produto GetById(int id);
-        Produto CreateProduto(Produto produto);
-        bool UpdateProduto(Produto produto);
-        bool DeleteProduto(int id);
+        IEnumerable<Produto> GetProdutosByCategoriaId(int id);
     }
 }

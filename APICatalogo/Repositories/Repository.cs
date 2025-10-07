@@ -35,11 +35,16 @@ namespace APICatalogo.Repositories
 
             return entity;
         }
-        public T Delete(T entity)
+        public T Delete(int id)
         {
             //HARD DELETE
-            _context.Set<T>().Remove(entity);
-            _context.SaveChanges();
+            var entity = _context.Find<T>(id);
+
+            if (entity != null)
+            {
+                _context.Set<T>().Remove(entity);
+                _context.SaveChanges();
+            }
 
             return entity;
         }

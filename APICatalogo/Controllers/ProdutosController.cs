@@ -1,6 +1,6 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.Interfaces;
 using APICatalogo.Models;
-using APICatalogo.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -12,45 +12,50 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
+        private readonly IRepository<Produto> _repository;
         private readonly IProdutoRepository _produtoRepository;
 
-        public ProdutosController(IProdutoRepository produtoRepository)
+        public ProdutosController(IRepository<Produto> repository, IProdutoRepository produtoRepository)
         {
+            _repository = repository;
             _produtoRepository = produtoRepository;
+        }
+
+        [HttpGet("produtos/{id}")]
+        public ActionResult<IEnumerable<Produto>> GetProdutosByCategoriaId(int id)
+        {
+            var produtos = _produtoRepository.GetProdutosByCategoriaId(id);
+
+            if (produtos is null)
+                return NotFound();
+
+            return Ok(produtos);
         }
 
         [HttpGet("{id}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            return Ok(_produtoRepository.GetById(id));
+            return Ok(_repository.Get(p => p.ProdutoId == id));
         }
 
         [HttpPost]
         public ActionResult Post(Produto produto)
         {
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, _produtoRepository.CreateProduto(produto));
+            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, _repository.Create(produto));
         }
 
         [HttpPut("{id:int}")]
         public ActionResult Put(int id, Produto produto)
         {
-            var deletado = _produtoRepository.UpdateProduto(produto);
-
-            if (deletado)
-                return Ok();
-
-            return StatusCode(500);
+            return Ok(_repository.Update(produto));
         }
 
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            bool deletado = _produtoRepository.DeleteProduto(id);
 
-            if (deletado)
-                return Ok();
 
-            return StatusCode(500);
+            return Ok(_repository.Delete(id));
         }
     }
 }
