@@ -14,41 +14,50 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class CategoriasController : ControllerBase
     {
-        private readonly IRepository<Categoria> _repository;
+        private readonly IUnitOfWork _unityOfWork;
         
-        public CategoriasController(IRepository<Categoria> repository)
+        public CategoriasController(IUnitOfWork unityOfWork)
         {
-            _repository = repository;
+            _unityOfWork = unityOfWork;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Categoria>> Get()
         {
-            return Ok(_repository.GetAll());
+            return Ok(_unityOfWork.CategoriaRepository.GetAll());
         }
 
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<Categoria> Get(int id)
         {
-            return Ok(_repository.Get(p => p.CategoriaId == id));
+            return Ok(_unityOfWork.CategoriaRepository.Get(p => p.CategoriaId == id));
         }
 
         [HttpPost]
         public ActionResult Post(Categoria categoria)
         {
-            return new CreatedAtRouteResult("ObterCategoria", new { id = categoria.CategoriaId }, _repository.Create(categoria));
+            _unityOfWork.CategoriaRepository.Create(categoria);
+            _unityOfWork.Commit();
+
+            return new CreatedAtRouteResult("ObterCategoria", new { id = categoria.CategoriaId }, categoria);
         }
 
         [HttpPut]
         public ActionResult Put(Categoria categoria)
         {
-            return Ok(_repository.Update(categoria));
+            _unityOfWork.CategoriaRepository.Update(categoria);
+            _unityOfWork.Commit();
+
+            return Ok(categoria);
         }
 
         [HttpDelete("{id:int}")]
         public ActionResult Delete(int id)
         {
-            return Ok(_repository.Delete(id));
+            var categoria = _unityOfWork.CategoriaRepository.Delete(id);
+            _unityOfWork.Commit();
+
+            return Ok(categoria);
         }
     }
 }

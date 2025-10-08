@@ -18,7 +18,7 @@ namespace APICatalogo.Repositories
         }
         public T? Get(Expression<Func<T, bool>> predicate)
         {
-            return _context.Set<T>().FirstOrDefault(predicate);
+            return _context.Set<T>().AsNoTracking().FirstOrDefault(predicate);
         }
         public T Create(T entity)
         {
