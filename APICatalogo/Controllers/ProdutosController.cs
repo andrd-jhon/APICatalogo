@@ -12,12 +12,12 @@ namespace APICatalogo.Controllers
     [ApiController]
     public class ProdutosController : ControllerBase
     {
-        private readonly IRepository<Produto> _repository;
+        //private readonly IRepository<Produto> _repository;
         private readonly IProdutoRepository _produtoRepository;
 
-        public ProdutosController(IRepository<Produto> repository, IProdutoRepository produtoRepository)
+        public ProdutosController(/*IRepository<Produto> repository,*/ IProdutoRepository produtoRepository)
         {
-            _repository = repository;
+            //_repository = repository;
             _produtoRepository = produtoRepository;
         }
 
@@ -35,19 +35,19 @@ namespace APICatalogo.Controllers
         [HttpGet("{id}", Name = "ObterProduto")]
         public ActionResult<Produto> Get(int id)
         {
-            return Ok(_repository.Get(p => p.ProdutoId == id));
+            return Ok(_produtoRepository.Get(p => p.ProdutoId == id));
         }
 
         [HttpPost]
         public ActionResult Post(Produto produto)
         {
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, _repository.Create(produto));
+            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, _produtoRepository.Create(produto));
         }
 
         [HttpPut("{id:int}")]
         public ActionResult Put(int id, Produto produto)
         {
-            return Ok(_repository.Update(produto));
+            return Ok(_produtoRepository.Update(produto));
         }
 
         [HttpDelete("{id:int}")]
@@ -55,7 +55,7 @@ namespace APICatalogo.Controllers
         {
 
 
-            return Ok(_repository.Delete(id));
+            return Ok(_produtoRepository.Delete(id));
         }
     }
 }
