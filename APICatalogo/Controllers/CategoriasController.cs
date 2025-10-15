@@ -16,7 +16,7 @@ namespace APICatalogo.Controllers
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _unityOfWork;
-        
+
         public CategoriasController(IUnitOfWork unityOfWork)
         {
             _unityOfWork = unityOfWork;
@@ -51,6 +51,9 @@ namespace APICatalogo.Controllers
         public ActionResult<CategoriaDTO> Get(int id)
         {
             var categoria = _unityOfWork.CategoriaRepository.Get(p => p.CategoriaId == id);
+
+            if (categoria is null)
+                return StatusCode(404);
 
             //MAPEAMENTO MANUAL DE DTO
             var categoriaDTO = new CategoriaDTO()
@@ -117,5 +120,19 @@ namespace APICatalogo.Controllers
 
             return Ok(categoriaDTO);
         }
+
+        [HttpGet("Teste")]
+        public ActionResult TesteFront()
+        {
+            return Ok(new { mensagem = "teste" });
+        }
+
+        [HttpPost("Teste")]
+        public ActionResult TesteFront(string nome)
+        {
+            return Ok(new { mensagem = "teste"});
+        }
+
     }
+
 }

@@ -17,6 +17,15 @@ builder.Services.AddControllers(options =>
     options.Filters.Add(typeof(APIExceptionFilter));
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .WithOrigins("http://localhost:3000") // endereço do frontend
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -79,6 +88,8 @@ app.UseAuthorization();
 //{
 //    await context.Response.WriteAsync("Middleware final!");
 //});
+
+app.UseCors("AllowFrontend");
 
 app.MapControllers();
 
