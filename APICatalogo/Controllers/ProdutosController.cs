@@ -1,4 +1,6 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.DTOs;
+using APICatalogo.DTOs.Mappings;
 using APICatalogo.Interfaces;
 using APICatalogo.Models;
 using Microsoft.AspNetCore.Http;
@@ -8,21 +10,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ProdutosController : ControllerBase
     {
         //private readonly IRepository<Produto> _repository;
         private readonly IProdutoRepository _produtoRepository;
+        private readonly IUnitOfWork _uow;
 
-        public ProdutosController(/*IRepository<Produto> repository,*/ IProdutoRepository produtoRepository)
+        public ProdutosController(/*IRepository<Produto> repository,*/ IProdutoRepository produtoRepository, IUnitOfWork uow)
         {
             //_repository = repository;
             _produtoRepository = produtoRepository;
+            _uow = uow;
         }
 
-        [HttpGet("produtos/{id}")]
-        public ActionResult<IEnumerable<Produto>> GetProdutosByCategoriaId(int id)
+        [HttpGet("Categoria/{id}")]
+        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosByCategoriaId(int id)
         {
             var produtos = _produtoRepository.GetProdutosByCategoriaId(id);
 
@@ -32,30 +36,57 @@ namespace APICatalogo.Controllers
             return Ok(produtos);
         }
 
+        [HttpGet]
+        public ActionResult<IEnumerable<ProdutoDTO>> Get()
+        {
+            var produtos = _uow.ProdutoRepository.GetAll();
+
+            if (produtos is null)
+                return NotFound();
+
+            return Ok(produtos);
+        }
+
         [HttpGet("{id}", Name = "ObterProduto")]
-        public ActionResult<Produto> Get(int id)
+        public ActionResult<ProdutoDTO> Get(int id)
         {
             return Ok(_produtoRepository.Get(p => p.ProdutoId == id));
         }
 
         [HttpPost]
-        public ActionResult Post(Produto produto)
+        public ActionResult<ProdutoDTO> Post(ProdutoDTO produtoDTO)
         {
-            return new CreatedAtRouteResult("ObterProduto", new { id = produto.ProdutoId }, _produtoRepository.Create(produto));
+            if (produtoDTO is null)
+                return BadRequest();
+
+            var produto = produtoDTO.ToProduto();
+
+            var novoProduto = _uow.ProdutoRepository.Create(produto);
+            _uow.Commit();
+
+            return new CreatedAtRouteResult("ObterProduto", new { id = produtoDTO.ProdutoId }, _produtoRepository.Create(produto));
         }
 
         [HttpPut("{id:int}")]
-        public ActionResult Put(int id, Produto produto)
+        public ActionResult<ProdutoDTO> Put(int id, ProdutoDTO produtoDTO)
         {
-            return Ok(_produtoRepository.Update(produto));
+            if (produtoDTO is null)
+                return BadRequest();
+
+            var produto = produtoDTO.ToProduto();
+            var newProduto = _produtoRepository.Update(produto);
+            _uow.Commit();
+
+            return Ok(newProduto);
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult Delete(int id)
+        public ActionResult<ProdutoDTO> Delete(int id)
         {
+            var produtoDTO = _produtoRepository.Delete(id).ToProdutoDTO();
+            _uow.Commit();
 
-
-            return Ok(_produtoRepository.Delete(id));
+            return Ok(produtoDTO);
         }
     }
 }

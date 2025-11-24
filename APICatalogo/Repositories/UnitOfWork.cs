@@ -28,13 +28,6 @@ namespace APICatalogo.Repositories
             get
             {
                 return _categoriaRepository ??= new CategoriaRepository(_context);
-                
-                //if (_categoriaRepository == null)
-                //{
-                //    _categoriaRepository = new CategoriaRepository(_context);
-                //}
-
-                //return _categoriaRepository;
             }
         }
 
