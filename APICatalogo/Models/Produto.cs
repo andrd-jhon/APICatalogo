@@ -15,7 +15,7 @@ namespace APICatalogo.Models
         //[PrimeiraLetraMaiuscula]
         public string? Nome { get; set; }
         [Required]
-        [StringLength(10, ErrorMessage = "A descrição deve conter no mínimo {1} caracteres.")]
+        //[StringLength(10, ErrorMessage = "A descrição deve conter no máximo {1} caracteres.")]
         public string? Descricao { get; set; }
         [Required]
         [Column(TypeName = "decimal(10,2)")]

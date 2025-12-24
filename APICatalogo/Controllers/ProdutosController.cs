@@ -3,6 +3,7 @@ using APICatalogo.DTOs;
 using APICatalogo.DTOs.Mappings;
 using APICatalogo.Interfaces;
 using APICatalogo.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -17,12 +18,14 @@ namespace APICatalogo.Controllers
         //private readonly IRepository<Produto> _repository;
         private readonly IProdutoRepository _produtoRepository;
         private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
 
-        public ProdutosController(/*IRepository<Produto> repository,*/ IProdutoRepository produtoRepository, IUnitOfWork uow)
+        public ProdutosController(/*IRepository<Produto> repository,*/ IProdutoRepository produtoRepository, IUnitOfWork uow, IMapper mapper)
         {
             //_repository = repository;
             _produtoRepository = produtoRepository;
             _uow = uow;
+            _mapper = mapper;
         }
 
         [HttpGet("Categoria/{id}")]
@@ -33,7 +36,9 @@ namespace APICatalogo.Controllers
             if (produtos is null)
                 return NotFound();
 
-            return Ok(produtos);
+            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+
+            return Ok(produtosDTO);
         }
 
         [HttpGet]
@@ -44,13 +49,22 @@ namespace APICatalogo.Controllers
             if (produtos is null)
                 return NotFound();
 
-            return Ok(produtos);
+            var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+
+            return Ok(produtosDTO);
         }
 
         [HttpGet("{id}", Name = "ObterProduto")]
         public ActionResult<ProdutoDTO> Get(int id)
         {
-            return Ok(_produtoRepository.Get(p => p.ProdutoId == id));
+            var produto = _produtoRepository.Get(p => p.ProdutoId == id);
+
+            if (produto is null)
+                return NotFound();
+
+            var produtoDTO = _mapper.Map<ProdutoDTO>(produto);
+
+            return Ok(produtoDTO);
         }
 
         [HttpPost]
@@ -59,32 +73,66 @@ namespace APICatalogo.Controllers
             if (produtoDTO is null)
                 return BadRequest();
 
-            var produto = produtoDTO.ToProduto();
+            var produto = _mapper.Map<Produto>(produtoDTO);
 
-            var novoProduto = _uow.ProdutoRepository.Create(produto);
+            produto = _uow.ProdutoRepository.Create(produto);
+
             _uow.Commit();
 
-            return new CreatedAtRouteResult("ObterProduto", new { id = produtoDTO.ProdutoId }, _produtoRepository.Create(produto));
+            produtoDTO = _mapper.Map<ProdutoDTO>(produto);
+
+            return new CreatedAtRouteResult("ObterProduto", new { id = produtoDTO.ProdutoId }, produtoDTO);
         }
+
+        //[HttpPut("{id:int}")]
+        //public ActionResult<ProdutoDTO> Put(int id, ProdutoDTO produtoDTO)
+        //{
+        //    if (id != produtoDTO.ProdutoId)
+        //        return BadRequest();
+
+        //    var produto = _mapper.Map<Produto>(produtoDTO);
+
+        //    var novoProduto = _produtoRepository.Update(produto);
+
+        //    _uow.Commit();
+
+        //    produtoDTO = _mapper.Map<ProdutoDTO>(novoProduto);
+
+        //    return Ok(produtoDTO);
+        //}
 
         [HttpPut("{id:int}")]
         public ActionResult<ProdutoDTO> Put(int id, ProdutoDTO produtoDTO)
         {
-            if (produtoDTO is null)
+            if (id != produtoDTO.ProdutoId)
                 return BadRequest();
 
-            var produto = produtoDTO.ToProduto();
-            var newProduto = _produtoRepository.Update(produto);
+            var produto = _mapper.Map<Produto>(produtoDTO);
+
+            produto = _produtoRepository.Update(produto);
+
             _uow.Commit();
 
-            return Ok(newProduto);
+            produtoDTO = _mapper.Map<ProdutoDTO>(produto);
+
+            return Ok(produtoDTO);
         }
+
 
         [HttpDelete("{id:int}")]
         public ActionResult<ProdutoDTO> Delete(int id)
         {
-            var produtoDTO = _produtoRepository.Delete(id).ToProdutoDTO();
+            if (id >= 0)
+                return BadRequest("Código de produto inválido!");
+
+            var produto = _produtoRepository.Delete(id);
+
+            if (produto is null)
+                return NotFound("Produto não encontrado!");
+
             _uow.Commit();
+
+            var produtoDTO = _mapper.Map<ProdutoDTO>(produto);
 
             return Ok(produtoDTO);
         }
