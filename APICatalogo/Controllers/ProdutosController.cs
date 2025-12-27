@@ -5,6 +5,7 @@ using APICatalogo.Interfaces;
 using APICatalogo.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,31 @@ namespace APICatalogo.Controllers
             _produtoRepository = produtoRepository;
             _uow = uow;
             _mapper = mapper;
+        }
+
+        [HttpPatch("{id}/UpdatePartial")]
+        public ActionResult<ProdutoDTOUpdateResponse> Patch (int id, JsonPatchDocument<ProdutoDTOUpdateRequest> patchProdutoDTO)
+        {
+            if (patchProdutoDTO is null || id <= 0)
+                return BadRequest();
+
+            var produto = _uow.ProdutoRepository.Get(p => p.ProdutoId == id);
+
+            if (produto is null)
+                return NotFound();
+
+            var produtoDTOUpdateRequest = _mapper.Map<ProdutoDTOUpdateRequest>(produto);
+
+            patchProdutoDTO.ApplyTo(produtoDTOUpdateRequest, ModelState);
+
+            if (!ModelState.IsValid || !TryValidateModel(produtoDTOUpdateRequest))
+                return BadRequest(ModelState);
+
+            _mapper.Map(produtoDTOUpdateRequest, produto);
+            _uow.ProdutoRepository.Update(produto);
+            _uow.Commit();
+
+            return Ok(_mapper.Map<ProdutoDTOUpdateResponse>(produto));
         }
 
         [HttpGet("Categoria/{id}")]
