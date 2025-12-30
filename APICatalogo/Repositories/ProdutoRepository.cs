@@ -21,8 +21,6 @@ namespace APICatalogo.Repositories
         {
             var produtos = Query().OrderBy(p => p.ProdutoId).AsQueryable();
 
-            var sql = produtos.ToQueryString();
-
             var produtosOrdenados = PagedList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
 
             return produtosOrdenados;

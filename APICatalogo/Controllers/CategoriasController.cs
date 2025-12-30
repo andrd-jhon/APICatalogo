@@ -5,10 +5,13 @@ using APICatalogo.Filters;
 using APICatalogo.Interfaces;
 using APICatalogo.Logging;
 using APICatalogo.Models;
+using APICatalogo.Pagination;
 using APICatalogo.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace APICatalogo.Controllers
@@ -19,10 +22,12 @@ namespace APICatalogo.Controllers
     {
         private readonly IUnitOfWork _unityOfWork;
         private readonly CustomerLogger _logger;
+        private readonly IMapper _mapper;
 
-        public CategoriasController(IUnitOfWork unityOfWork)
+        public CategoriasController(IUnitOfWork unityOfWork, IMapper mapper)
         {
             _unityOfWork = unityOfWork;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -105,6 +110,28 @@ namespace APICatalogo.Controllers
             var categoriaDTO = categoria.ToCategoriaDTO();
 
             return Ok(categoriaDTO);
+        }
+
+        [HttpGet("pagination")]
+        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        {
+            var categorias = _unityOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
+
+            var metadata = new
+            {
+                categorias.TotalCount,
+                categorias.PageSize,
+                categorias.CurrentPage,
+                categorias.TotalPages,
+                categorias.HasNext,
+                categorias.HasPrevious
+            };
+
+            Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+
+            var categoriasDTO = categorias.ToCategoriaDTOList();
+
+            return Ok(categoriasDTO);
         }
     }
 }
