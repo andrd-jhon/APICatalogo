@@ -8,5 +8,6 @@ namespace APICatalogo.Interfaces
         IEnumerable<Produto> GetProdutosByCategoriaId(int id);
         //IEnumerable<Produto> GetProdutos(ProdutosParameters produtosParameters);
         PagedList<Produto> GetProdutos(ProdutosParameters produtosParameters);
+        PagedList<Produto> GetProdutosFiltroPreco(ProdutosFIltroPreco produtosFiltroParameters);
     }
 }

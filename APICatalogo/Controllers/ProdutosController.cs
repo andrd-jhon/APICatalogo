@@ -112,23 +112,6 @@ namespace APICatalogo.Controllers
             return new CreatedAtRouteResult("ObterProduto", new { id = produtoDTO.ProdutoId }, produtoDTO);
         }
 
-        //[HttpPut("{id:int}")]
-        //public ActionResult<ProdutoDTO> Put(int id, ProdutoDTO produtoDTO)
-        //{
-        //    if (id != produtoDTO.ProdutoId)
-        //        return BadRequest();
-
-        //    var produto = _mapper.Map<Produto>(produtoDTO);
-
-        //    var novoProduto = _produtoRepository.Update(produto);
-
-        //    _uow.Commit();
-
-        //    produtoDTO = _mapper.Map<ProdutoDTO>(novoProduto);
-
-        //    return Ok(produtoDTO);
-        //}
-
         [HttpPut("{id:int}")]
         public ActionResult<ProdutoDTO> Put(int id, ProdutoDTO produtoDTO)
         {
@@ -170,6 +153,19 @@ namespace APICatalogo.Controllers
         {
             var produtos = _uow.ProdutoRepository.GetProdutos(produtosParameters);
 
+            return ObterProdutos(produtos);
+        }
+
+        [HttpGet("filter/preco/pagination")]
+        public ActionResult<IEnumerable<ProdutoDTO>> GetProdutosFiltroPreco([FromQuery] ProdutosFIltroPreco produtoFiltroParametros)
+        {
+            var produtos = _uow.ProdutoRepository.GetProdutosFiltroPreco(produtoFiltroParametros);
+
+            return ObterProdutos(produtos);
+        }
+
+        private ActionResult<IEnumerable<ProdutoDTO>> ObterProdutos(PagedList<Produto> produtos)
+        {
             var metadata = new
             {
                 produtos.TotalCount,
@@ -185,6 +181,6 @@ namespace APICatalogo.Controllers
             var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
 
             return Ok(produtosDTO);
-        } 
+        }
     }
 }

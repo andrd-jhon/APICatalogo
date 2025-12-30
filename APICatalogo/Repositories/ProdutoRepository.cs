@@ -25,5 +25,35 @@ namespace APICatalogo.Repositories
 
             return produtosOrdenados;
         }
+
+        public PagedList<Produto> GetProdutosFiltroPreco (ProdutosFIltroPreco produtosFiltroParameters)
+        {
+            var produtos = Query().AsQueryable();
+
+            var sql = produtos.ToQueryString();
+
+            if (produtosFiltroParameters.Preco.HasValue && !string.IsNullOrEmpty(produtosFiltroParameters.PrecoCriterio))
+            {
+                if (produtosFiltroParameters.PrecoCriterio.Equals("maior", StringComparison.OrdinalIgnoreCase))
+                {
+                    produtos = produtos.Where(p => p.Preco > produtosFiltroParameters.Preco.Value).OrderBy(p => p.Preco);
+                }
+                else if (produtosFiltroParameters.PrecoCriterio.Equals("menor", StringComparison.OrdinalIgnoreCase))
+                {
+                    produtos = produtos.Where(p => p.Preco < produtosFiltroParameters.Preco.Value).OrderBy(p => p.Preco);
+                }
+                else if (produtosFiltroParameters.PrecoCriterio.Equals("igual", StringComparison.OrdinalIgnoreCase))
+                {
+                    produtos = produtos.Where(p => p.Preco == produtosFiltroParameters.Preco.Value).OrderBy(p => p.Preco);
+                }
+
+                sql = produtos.ToQueryString();
+
+            }
+
+            var produtosFiltrados = PagedList<Produto>.ToPagedList(produtos, produtosFiltroParameters.PageNumber, produtosFiltroParameters.PageSize);
+
+            return produtosFiltrados;
+        }
     }
 }
