@@ -12,9 +12,13 @@ namespace APICatalogo.Repositories
         {
             _context = context;
         }
-        public IEnumerable<T> GetAll()
+        public IReadOnlyList<T> GetAll()
         {
-            return _context.Set<T>().AsNoTracking().ToList();
+            return [.. _context.Set<T>().AsNoTracking()];
+        }
+        public IQueryable<T> Query()
+        {
+            return _context.Set<T>().AsNoTracking();
         }
         public T? Get(Expression<Func<T, bool>> predicate)
         {

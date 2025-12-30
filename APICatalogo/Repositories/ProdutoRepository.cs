@@ -2,6 +2,7 @@
 using APICatalogo.Interfaces;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
+using Microsoft.EntityFrameworkCore;
 
 namespace APICatalogo.Repositories
 {
@@ -16,13 +17,15 @@ namespace APICatalogo.Repositories
             return GetAll().Where(p => p.CategoriaId == id);
         }
         
-        public IEnumerable<Produto> GetProdutos (ProdutosParameters produtosParameters)
+        public PagedList<Produto> GetProdutos (ProdutosParameters produtosParameters)
         {
-            return GetAll()
-                .OrderBy(p => p.Nome)
-                .Skip((produtosParameters.PageNumber - 1) * produtosParameters.PageSize) 
-                .Take(produtosParameters.PageSize)
-                .ToList();
+            var produtos = Query().OrderBy(p => p.ProdutoId).AsQueryable();
+
+            var sql = produtos.ToQueryString();
+
+            var produtosOrdenados = PagedList<Produto>.ToPagedList(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
+
+            return produtosOrdenados;
         }
     }
 }
