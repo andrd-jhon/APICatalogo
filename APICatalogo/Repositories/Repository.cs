@@ -1,6 +1,7 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 using System.Linq.Expressions;
 
 namespace APICatalogo.Repositories
@@ -12,9 +13,9 @@ namespace APICatalogo.Repositories
         {
             _context = context;
         }
-        public IReadOnlyList<T> GetAll()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return [.. _context.Set<T>().AsNoTracking()];
+            return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
         public IQueryable<T> Query()
         {

@@ -31,9 +31,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get()
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
-            var categorias = _unityOfWork.CategoriaRepository.GetAll();
+            var categorias = await _unityOfWork.CategoriaRepository.GetAllAsync();
 
             if (categorias is null)
                 return NotFound();
@@ -57,7 +57,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPost]
-        public ActionResult<CategoriaDTO> Post(CategoriaDTO categoriaDTO)
+        public async Task<ActionResult<CategoriaDTO>> Post(CategoriaDTO categoriaDTO)
         {
             if (categoriaDTO is null)
             {
@@ -69,7 +69,7 @@ namespace APICatalogo.Controllers
 
             var categoriaCriada = _unityOfWork.CategoriaRepository.Create(categoria);
 
-            _unityOfWork.Commit();
+            await _unityOfWork.CommitAsync();
 
             var retornoCategoriaDTO = categoriaCriada.ToCategoriaDTO();
 
@@ -77,7 +77,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpPut]
-        public ActionResult<CategoriaDTO> Put(CategoriaDTO categoriaDTO)
+        public async Task<ActionResult<CategoriaDTO>> Put(CategoriaDTO categoriaDTO)
         {
             if (categoriaDTO is null)
             {
@@ -88,7 +88,7 @@ namespace APICatalogo.Controllers
             var categoria = categoriaDTO.ToCategoria();
 
             _unityOfWork.CategoriaRepository.Update(categoria);
-            _unityOfWork.Commit();
+            await _unityOfWork.CommitAsync();
 
             var categoriaAtualizadaDTO = categoria.ToCategoriaDTO();
 
@@ -96,16 +96,20 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        public ActionResult<CategoriaDTO> Delete(int id)
+        public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
-            var categoria = _unityOfWork.CategoriaRepository.Get(p => p.CategoriaId == id);
+            if (id <= 0)
+                return BadRequest();
+
+            var categoria = _unityOfWork.CategoriaRepository.Delete(id);
 
             if (categoria is null)
             {
                 _logger.LogWarning($"Dados inválidos.");
                 return BadRequest();
             }
-            _unityOfWork.Commit();
+
+            await _unityOfWork.CommitAsync();
 
             var categoriaDTO = categoria.ToCategoriaDTO();
 
@@ -113,9 +117,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("pagination")]
-        public ActionResult<IEnumerable<CategoriaDTO>> Get([FromQuery] CategoriasParameters categoriasParameters)
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync([FromQuery] CategoriasParameters categoriasParameters)
         {
-            var categorias = _unityOfWork.CategoriaRepository.GetCategorias(categoriasParameters);
+            var categorias = await _unityOfWork.CategoriaRepository.GetCategoriasAsync(categoriasParameters);
 
             return ObterCategorias(categorias);
         }
@@ -140,9 +144,9 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("filter/name/pagination")]
-        public ActionResult<IEnumerable<CategoriaDTO>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
+        public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
         {
-            var categorias = _unityOfWork.CategoriaRepository.GetCategoriasFiltroNome(categoriasFiltro);
+            var categorias = await _unityOfWork.CategoriaRepository.GetCategoriasFiltroNomeAsync(categoriasFiltro);
 
             return ObterCategorias(categorias);
         }
