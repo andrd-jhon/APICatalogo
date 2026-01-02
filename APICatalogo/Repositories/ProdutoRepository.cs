@@ -3,6 +3,8 @@ using APICatalogo.Interfaces;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
 using Microsoft.EntityFrameworkCore;
+using X.PagedList;
+using X.PagedList.EF;
 
 namespace APICatalogo.Repositories
 {
@@ -21,16 +23,16 @@ namespace APICatalogo.Repositories
             return categoriasOrdenadas;
         }
         
-        public Task<PagedList<Produto>> GetProdutos (ProdutosParameters produtosParameters)
+        public Task<IPagedList<Produto>> GetProdutos (ProdutosParameters produtosParameters)
         {
             var produtos = Query().OrderBy(p => p.ProdutoId).AsQueryable();
 
-            var produtosOrdenados = PagedList<Produto>.ToPagedListAsync(produtos, produtosParameters.PageNumber, produtosParameters.PageSize);
+            var produtosOrdenados = produtos.ToPagedListAsync(produtosParameters.PageNumber, produtosParameters.PageSize);
 
             return produtosOrdenados;
         }
 
-        public Task<PagedList<Produto>> GetProdutosFiltroPreco (ProdutosFIltroPreco produtosFiltroParameters)
+        public Task<IPagedList<Produto>> GetProdutosFiltroPreco (ProdutosFIltroPreco produtosFiltroParameters)
         {
             var produtos = Query().AsQueryable();
 
@@ -50,7 +52,7 @@ namespace APICatalogo.Repositories
                 }
             }
 
-            var produtosFiltrados = PagedList<Produto>.ToPagedListAsync(produtos, produtosFiltroParameters.PageNumber, produtosFiltroParameters.PageSize);
+            var produtosFiltrados = produtos.ToPagedListAsync(produtosFiltroParameters.PageNumber, produtosFiltroParameters.PageSize);
 
             return produtosFiltrados;
         }

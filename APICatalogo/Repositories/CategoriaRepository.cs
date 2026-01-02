@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using X.PagedList;
 using X.PagedList.EF;
-using X.PagedList.Extensions;
 
 namespace APICatalogo.Repositories
 {
