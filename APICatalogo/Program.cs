@@ -12,34 +12,53 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+#region Controllers, Filters & JSON Settings
+
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(typeof(APIExceptionFilter));
-});
+})
+.AddJsonOptions(options =>
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
+.AddNewtonsoftJson();
+
+#endregion
+
+#region CORS
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:3000") // endereço do frontend
+            .WithOrigins("http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
 
-builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles).AddNewtonsoftJson();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+#endregion
+
+#region Swagger / OpenAPI
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+#endregion
+
+#region Configuration Values (appSettings.json)
+
 string? mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
 
-string? valor1 = builder.Configuration["Chave1"];
-string? s1Valor2 = builder.Configuration["Secao1:Chave2"];
+#endregion
+
+#region Database
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(mySqlConnection,
         ServerVersion.AutoDetect(mySqlConnection)));
+
+#endregion
+
+#region Dependency Injection - Repositories & Unit Of Work
 
 builder.Services.AddScoped<APILoggingFilter>();
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
@@ -47,26 +66,46 @@ builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+#endregion
+
+#region AutoMapper
+
 builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
 
+#endregion 
 
-builder.Services.AddTransient<IMeuServico, MeuServico>(); /*Esse trecho de codigo indica que toda vez que uma classe
-                                                           solicitar essa dependência, ela será instanciada!*/
+#region API Behavior
 
-builder.Services.Configure<ApiBehaviorOptions>(options => /*Esse trecho de codigo indica que a injeção de dependencias explicita nos controlladores
-                                                           está desabilitada (impedindo a injeção sem o uso do [FromServices])*/
+builder.Services.Configure<ApiBehaviorOptions>(options => 
 {
     options.DisableImplicitFromServicesParameters = true;
 });
 
-builder.Logging.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
-{
-    LogLevel = LogLevel.Information,
-}));
+#endregion
+
+#region Logging
+
+builder.Logging.AddProvider(
+    new CustomLoggerProvider(
+        new CustomLoggerProviderConfiguration
+        {
+            LogLevel = LogLevel.Information,
+        }));
+
+#endregion
+
+#region Authentication & Authorization
+
+builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+
+builder.Services.AddAuthorization();
+
+#endregion
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+#region Middleware & Pipeline
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -76,24 +115,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-
 app.UseAuthorization();
-
-//app.Use(async (context, next) =>
-//{
-//    //
-//    await next(context);
-//    //
-//});
-
-//app.Run(async (context) =>
-//{
-//    await context.Response.WriteAsync("Middleware final!");
-//});
 
 app.UseCors("AllowFrontend");
 
 app.MapControllers();
 
+#endregion
+
 app.Run();
+
