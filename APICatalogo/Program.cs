@@ -5,7 +5,7 @@ using APICatalogo.Filters;
 using APICatalogo.Interfaces;
 using APICatalogo.Logging;
 using APICatalogo.Repositories;
-using APICatalogo.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -102,7 +102,15 @@ builder.Services.AddAuthorization();
 
 #endregion
 
+#region Identity
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
 var app = builder.Build();
+
+#endregion
 
 #region Middleware & Pipeline
 
