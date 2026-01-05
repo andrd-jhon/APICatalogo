@@ -6,7 +6,6 @@ using APICatalogo.Interfaces;
 using APICatalogo.Logging;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
-using APICatalogo.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
