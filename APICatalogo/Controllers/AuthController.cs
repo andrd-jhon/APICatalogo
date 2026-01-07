@@ -29,7 +29,7 @@ namespace APICatalogo.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModelDTO model)
         {
-            var user = await _userManager.FindByNameAsync(model.UserName);
+            var user = await _userManager.FindByNameAsync(model.UserName!);
 
             if (user is not null && await _userManager.CheckPasswordAsync(user, model.Password!))
             {
@@ -68,6 +68,34 @@ namespace APICatalogo.Controllers
             }
 
             return Unauthorized();
+        }
+
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModelDTO registerModelDTO)
+        {
+            var userExists = await _userManager.FindByNameAsync(registerModelDTO.UserName!);
+
+            if (userExists != null)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseDTO { Status = "Error", Message = "User already exists!" });
+            }
+
+            ApplicationUser user = new()
+            {
+                Email = registerModelDTO.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                UserName = registerModelDTO.UserName
+            };
+
+            var result = await _userManager.CreateAsync(user, registerModelDTO.Password!);
+
+            if (!result.Succeeded)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseDTO { Status = "Error", Message = "User creation failed." });
+            }
+
+            return Ok(new ResponseDTO { Status = "Success", Message = "User created successfully!" });
         }
     }
 }
