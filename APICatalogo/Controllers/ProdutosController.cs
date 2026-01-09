@@ -5,6 +5,7 @@ using APICatalogo.Interfaces;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -73,6 +74,7 @@ namespace APICatalogo.Controllers
             return Ok(produtosDTO);
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get()
         {

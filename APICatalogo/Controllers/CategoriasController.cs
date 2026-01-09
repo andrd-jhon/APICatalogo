@@ -7,6 +7,7 @@ using APICatalogo.Logging;
 using APICatalogo.Models;
 using APICatalogo.Pagination;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ namespace APICatalogo.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
