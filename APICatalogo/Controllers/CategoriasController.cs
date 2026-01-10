@@ -149,7 +149,7 @@ namespace APICatalogo.Controllers
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
         {
             var categorias = await _unityOfWork.CategoriaRepository.GetCategoriasFiltroNomeAsync(categoriasFiltro);
-
+            var teste = "commit teste";
             return ObterCategorias(categorias);
         }
     }
