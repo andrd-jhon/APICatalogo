@@ -129,9 +129,7 @@ builder.Logging.AddProvider(
 
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 
-builder.Services.AddAuthorization(options => options {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
-});
+builder.Services.AddAuthorization(options => options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")));
 
 #endregion
 
