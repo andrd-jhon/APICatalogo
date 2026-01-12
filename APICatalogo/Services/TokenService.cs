@@ -8,7 +8,7 @@ namespace APICatalogo.Services
 {
     public class TokenService : ITokenService
     {
-        public JwtSecurityToken GenerateAcessToken(IEnumerable<Claim> claims, IConfiguration _config)
+        public SecurityToken GenerateAcessToken(IEnumerable<Claim> claims, IConfiguration _config)
         {
             var key = _config.GetSection("JWT").GetValue<string>("SecretKey") ??
                 throw new InvalidOperationException("Invalid secret key");
@@ -27,7 +27,7 @@ namespace APICatalogo.Services
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return token;
         }
