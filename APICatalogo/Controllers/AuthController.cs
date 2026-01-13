@@ -3,6 +3,7 @@ using APICatalogo.Models;
 using APICatalogo.Services;
 using Azure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
@@ -194,6 +195,41 @@ namespace APICatalogo.Controllers
                 Status = "Error",
                 Message = $"Role {roleName} already exists"
             });
+        }
+
+        [HttpPost]
+        [Route("AddUserToRole")]
+        public async Task<IActionResult> AddUserToRole(string email, string roleName)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user != null)
+            {
+                var result = await _userManager.AddToRoleAsync(user, roleName);
+
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation(1, $"User {user} added to the {roleName} role");
+
+                    return StatusCode(StatusCodes.Status200OK, new ResponseDTO
+                    {
+                        Status = "Success",
+                        Message = $"User {user.Email} added to the {roleName} role"
+                    });
+                }
+                else
+                {
+                    _logger.LogInformation(1, $"Error: unable to add user {user.Email} to the {roleName} role");
+
+                    return StatusCode(StatusCodes.Status400BadRequest, new ResponseDTO
+                    {
+                        Status = "Error",
+                        Message = $"Error: unable to add user {user.Email} to the {roleName} role"
+                    });
+                }
+            }
+
+            return BadRequest(new { Error = "Unable to find user" });
         }
     }
 }
