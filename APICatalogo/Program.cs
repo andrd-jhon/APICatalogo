@@ -129,7 +129,19 @@ builder.Logging.AddProvider(
 
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 
-builder.Services.AddAuthorization(options => options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")));
+builder.Services.AddAuthorization(options => {
+
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "andrade"));
+
+    options.AddPolicy("ÙserOnly", policy => policy.RequireRole("User"));
+
+    options.AddPolicy("ExclusivePolicyOnly", policy => 
+    policy.RequireAssertion(context => 
+    context.User.HasClaim(claim => 
+    claim.Type == "id" && claim.Value == "joao" || context.User.IsInRole("SuperAdmin"))).RequireClaim("id", "macoratti"));
+});
 
 #endregion
 
