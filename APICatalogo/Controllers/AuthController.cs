@@ -142,7 +142,7 @@ namespace APICatalogo.Controllers
             });
         }
 
-        [Authorize]
+        [Authorize(Policy = "ExclusivePolicyOnly")]
         [HttpPost]
         [Route("revoke/{username}")]
         public async Task<IActionResult> Revoke(string userName)
@@ -161,6 +161,7 @@ namespace APICatalogo.Controllers
 
         [HttpPost]
         [Route("CreateRole")]
+        [Authorize("SuperAdminOnly")]
         public async Task<IActionResult> CreateRole(string roleName)
         {
             var roleExists = await _roleManager.RoleExistsAsync(roleName);
@@ -200,6 +201,7 @@ namespace APICatalogo.Controllers
 
         [HttpPost]
         [Route("AddUserToRole")]
+        [Authorize("SuperAdminOnly")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
             var user = await _userManager.FindByEmailAsync(email);

@@ -135,7 +135,7 @@ builder.Services.AddAuthorization(options => {
 
     options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "andrade"));
 
-    options.AddPolicy("ÙserOnly", policy => policy.RequireRole("User"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
 
     options.AddPolicy("ExclusivePolicyOnly", policy => 
     policy.RequireAssertion(context => 
