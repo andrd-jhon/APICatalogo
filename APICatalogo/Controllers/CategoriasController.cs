@@ -31,7 +31,7 @@ namespace APICatalogo.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOrOwner")]
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
@@ -46,6 +46,7 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDTO);
         }
 
+        [Authorize(Policy = "AdminOrOwner")]
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<CategoriaDTO> Get(int id)
         {
@@ -59,6 +60,7 @@ namespace APICatalogo.Controllers
             return Ok(categoriaDTO);
         }
 
+        [Authorize(Policy = "OwnerOnly")]
         [HttpPost]
         public async Task<ActionResult<CategoriaDTO>> Post(CategoriaDTO categoriaDTO)
         {
@@ -79,6 +81,7 @@ namespace APICatalogo.Controllers
             return new CreatedAtRouteResult("ObterCategoria", new { id = retornoCategoriaDTO.CategoriaId }, retornoCategoriaDTO);
         }
 
+        [Authorize(Policy = "AdminOrOwner")]
         [HttpPut]
         public async Task<ActionResult<CategoriaDTO>> Put(CategoriaDTO categoriaDTO)
         {
@@ -99,7 +102,7 @@ namespace APICatalogo.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "OwnerOnly")]
         public async Task<ActionResult<CategoriaDTO>> Delete(int id)
         {
             if (id <= 0)
@@ -120,6 +123,7 @@ namespace APICatalogo.Controllers
             return Ok(categoriaDTO);
         }
 
+        [AllowAnonymous]
         [HttpGet("pagination")]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetAsync([FromQuery] CategoriasParameters categoriasParameters)
         {
@@ -147,6 +151,7 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDTO);
         }
 
+        [AllowAnonymous]
         [HttpGet("filter/name/pagination")]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
         {

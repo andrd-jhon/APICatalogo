@@ -142,7 +142,6 @@ namespace APICatalogo.Controllers
             });
         }
 
-        [Authorize(Policy = "ExclusivePolicyOnly")]
         [HttpPost]
         [Route("revoke/{username}")]
         public async Task<IActionResult> Revoke(string userName)

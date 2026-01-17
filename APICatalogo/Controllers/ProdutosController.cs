@@ -33,6 +33,7 @@ namespace APICatalogo.Controllers
             _mapper = mapper;
         }
 
+        [Authorize(Policy = "OwnerOnly")]
         [HttpPatch("{id}/UpdatePartial")]
         public async Task<ActionResult<ProdutoDTOUpdateResponse>> Patch (int id, JsonPatchDocument<ProdutoDTOUpdateRequest> patchProdutoDTO)
         {
@@ -58,6 +59,7 @@ namespace APICatalogo.Controllers
             return Ok(_mapper.Map<ProdutoDTOUpdateResponse>(produto));
         }
 
+        [Authorize(Policy = "AdminOrOwner")]
         [HttpGet("Categoria/{id}")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutosByCategoriaId(int id)
         {
@@ -74,7 +76,7 @@ namespace APICatalogo.Controllers
             return Ok(produtosDTO);
         }
 
-        [Authorize(Policy = "UserOnly")]
+        [Authorize(Policy = "AdminOrOwner")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get()
         {
@@ -157,6 +159,7 @@ namespace APICatalogo.Controllers
             return Ok(produtoDTO);
         }
 
+        [AllowAnonymous]
         [HttpGet("pagination")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> Get([FromQuery] ProdutosParameters produtosParameters)
         {
@@ -165,6 +168,7 @@ namespace APICatalogo.Controllers
             return ObterProdutos(produtos);
         }
 
+        [AllowAnonymous]
         [HttpGet("filter/preco/pagination")]
         public async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetProdutosFiltroPreco([FromQuery] ProdutosFIltroPreco produtoFiltroParametros)
         {

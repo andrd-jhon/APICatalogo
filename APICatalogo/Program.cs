@@ -30,6 +30,17 @@ builder.Services.AddControllers(options =>
 
 #endregion
 
+#region CORS
+
+var origensAcessoPermitido = "_origensComAcessoPermitido";
+
+builder.Services.AddCors(options => options.AddPolicy(name: origensAcessoPermitido, policy =>
+{
+    policy.WithOrigins("https://apirequest.io")/*.AllowAnyHeader().AllowAnyMethod()*/;
+}));
+
+#endregion
+
 #region Swagger / OpenAPI
 
 builder.Services.AddEndpointsApiExplorer();
@@ -80,9 +91,7 @@ string? mySqlConnection = builder.Configuration.GetConnectionString("DefaultConn
 
 #region Database
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(mySqlConnection,
-        ServerVersion.AutoDetect(mySqlConnection)));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(mySqlConnection, ServerVersion.AutoDetect(mySqlConnection)));
 
 #endregion
 
@@ -107,8 +116,7 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero,
         ValidAudience = builder.Configuration["JWT:ValidAudience"],
         ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-                           Encoding.UTF8.GetBytes(secretKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     };
 });
 
@@ -116,14 +124,16 @@ builder.Services.AddAuthorization(options => {
 
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("admin"));
 
-    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "teste"));
+    options.AddPolicy("OwnerOnly", policy => policy.RequireRole("owner")/*.RequireClaim("id", "teste")*/);
 
-    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("user"));
 
-    options.AddPolicy("ExclusivePolicyOnly", policy =>
-    policy.RequireAssertion(context =>
-    context.User.HasClaim(claim =>
-    claim.Type == "id" && claim.Value == "joao" || context.User.IsInRole("SuperAdmin"))).RequireClaim("id", "macoratti"));
+    options.AddPolicy("AdminOrOwner", policy => policy.RequireRole("admin", "owner"));
+
+    //options.AddPolicy("ExclusivePolicyOnly", policy =>
+    //policy.RequireAssertion(context =>
+    //context.User.HasClaim(claim =>
+    //claim.Type == "id" && claim.Value == "joao" || context.User.IsInRole("SuperAdmin"))).RequireClaim("id", "macoratti"));
 });
 
 #endregion
@@ -167,6 +177,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseCors(origensAcessoPermitido);
 
 app.UseAuthorization();
 
