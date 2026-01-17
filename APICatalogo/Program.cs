@@ -32,10 +32,10 @@ builder.Services.AddControllers(options =>
 
 #region CORS
 
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
+builder.Services.AddCors(options => options.AddPolicy("OrigensComAcessoPermitido", policy =>
 {
     policy
-    .WithOrigins("https://apirequest.io", "https://exemplo.com")
+    .WithOrigins("https//localhost:xxxx")
     .WithMethods("GET", "POST")
     .AllowAnyHeader();
 }));

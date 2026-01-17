@@ -8,6 +8,7 @@ using APICatalogo.Models;
 using APICatalogo.Pagination;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ using X.PagedList;
 
 namespace APICatalogo.Controllers
 {
+    [EnableCors("OrigensComAcessoPermitido")]
     [Route("[controller]")]
     [ApiController]
     public class CategoriasController : ControllerBase
@@ -46,7 +48,8 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDTO);
         }
 
-        [Authorize(Policy = "AdminOrOwner")]
+        //[Authorize(Policy = "AdminOrOwner")]
+        [DisableCors]
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         public ActionResult<CategoriaDTO> Get(int id)
         {
