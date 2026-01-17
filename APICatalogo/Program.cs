@@ -32,11 +32,12 @@ builder.Services.AddControllers(options =>
 
 #region CORS
 
-var origensAcessoPermitido = "_origensComAcessoPermitido";
-
-builder.Services.AddCors(options => options.AddPolicy(name: origensAcessoPermitido, policy =>
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
 {
-    policy.WithOrigins("https://apirequest.io")/*.AllowAnyHeader().AllowAnyMethod()*/;
+    policy
+    .WithOrigins("https://apirequest.io", "https://exemplo.com")
+    .WithMethods("GET", "POST")
+    .AllowAnyHeader();
 }));
 
 #endregion
@@ -182,7 +183,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseCors(origensAcessoPermitido);
+app.UseCors();
 
 app.UseAuthorization();
 
