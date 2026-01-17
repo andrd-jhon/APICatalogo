@@ -31,6 +31,7 @@ namespace APICatalogo.Controllers
             _mapper = mapper;
         }
 
+        [Authorize(Policy = "AdminOnly")]
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()

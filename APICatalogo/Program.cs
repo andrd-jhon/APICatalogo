@@ -1,16 +1,19 @@
 using APICatalogo.Context;
 using APICatalogo.DTOs.Mappings;
-using APICatalogo.Extensions;
 using APICatalogo.Filters;
 using APICatalogo.Interfaces;
 using APICatalogo.Logging;
 using APICatalogo.Models;
 using APICatalogo.Repositories;
 using APICatalogo.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,19 +27,6 @@ builder.Services.AddControllers(options =>
 .AddJsonOptions(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
 .AddNewtonsoftJson();
-
-#endregion
-
-#region CORS
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        policy => policy
-            .WithOrigins("http://localhost:3000")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-});
 
 #endregion
 
@@ -74,6 +64,14 @@ builder.Services.AddSwaggerGen(c =>
 
 #endregion
 
+#region Identity
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+#endregion
+
 #region Configuration Values (appSettings.json)
 
 string? mySqlConnection = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -88,6 +86,48 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 #endregion
 
+#region Authentication & Authorization
+
+var secretKey = builder.Configuration["JWT:SecretKey"] ?? throw new ArgumentException("Invalid secret key");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+                           Encoding.UTF8.GetBytes(secretKey))
+    };
+});
+
+builder.Services.AddAuthorization(options => {
+
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("admin"));
+
+    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "teste"));
+
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+
+    options.AddPolicy("ExclusivePolicyOnly", policy =>
+    policy.RequireAssertion(context =>
+    context.User.HasClaim(claim =>
+    claim.Type == "id" && claim.Value == "joao" || context.User.IsInRole("SuperAdmin"))).RequireClaim("id", "macoratti"));
+});
+
+#endregion
+
 #region Dependency Injection - Repositories & Unit Of Work
 
 builder.Services.AddScoped<APILoggingFilter>();
@@ -96,21 +136,6 @@ builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-
-#endregion
-
-#region AutoMapper
-
-builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
-
-#endregion 
-
-#region API Behavior
-
-builder.Services.Configure<ApiBehaviorOptions>(options => 
-{
-    options.DisableImplicitFromServicesParameters = true;
-});
 
 #endregion
 
@@ -125,36 +150,13 @@ builder.Logging.AddProvider(
 
 #endregion
 
-#region Authentication & Authorization
+#region AutoMapper
 
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile));
 
-builder.Services.AddAuthorization(options => {
-
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-
-    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id", "andrade"));
-
-    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
-
-    options.AddPolicy("ExclusivePolicyOnly", policy => 
-    policy.RequireAssertion(context => 
-    context.User.HasClaim(claim => 
-    claim.Type == "id" && claim.Value == "joao" || context.User.IsInRole("SuperAdmin"))).RequireClaim("id", "macoratti"));
-});
-
-#endregion
-
-#region Identity
-
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
-
-#endregion
+#endregion 
 
 var app = builder.Build();
-
 
 #region Middleware & Pipeline
 
@@ -162,14 +164,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.ConfigureExceptionHandler();
 }
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
-app.UseCors("AllowFrontend");
 
 app.MapControllers();
 
