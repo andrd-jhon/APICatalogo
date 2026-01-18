@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -35,8 +36,9 @@ builder.Services.AddControllers(options =>
 builder.Services.AddCors(options => options.AddPolicy("OrigensComAcessoPermitido", policy =>
 {
     policy
-    .WithOrigins("https//localhost:xxxx")
+    .WithOrigins("https://localhost:7022")
     .WithMethods("GET", "POST")
+    .AllowAnyHeader()
     .AllowAnyHeader();
 }));
 
@@ -139,6 +141,22 @@ builder.Services.AddAuthorization(options => {
 
 #endregion
 
+#region
+
+builder.Services.AddRateLimiter(rateLimiteOptions =>
+{
+    rateLimiteOptions.AddFixedWindowLimiter(policyName: "fixedWindow", options =>
+    {
+        options.PermitLimit = 1;
+        options.Window = TimeSpan.FromSeconds(5);
+        options.QueueLimit = 0;
+    });
+
+    rateLimiteOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+#endregion
+
 #region Dependency Injection - Repositories & Unit Of Work
 
 builder.Services.AddScoped<APILoggingFilter>();
@@ -182,6 +200,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseRateLimiter();
 
 app.UseCors();
 
