@@ -35,7 +35,8 @@ namespace APICatalogo.Controllers
             _mapper = mapper;
         }
 
-        [DisableRateLimiting]
+        //[DisableRateLimiting]
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
