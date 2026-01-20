@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -140,7 +141,7 @@ builder.Services.AddAuthorization(options => {
 
 #endregion
 
-#region
+#region Rate Limiting
 
 builder.Services.AddRateLimiter(rateLimiteOptions =>
 {
@@ -152,6 +153,22 @@ builder.Services.AddRateLimiter(rateLimiteOptions =>
     });
 
     rateLimiteOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpcontext => RateLimitPartition.GetFixedWindowLimiter(
+        partitionKey: httpcontext.User.Identity?.Name ?? httpcontext.Request.Headers.Host.ToString(),
+
+    factory: partition => new FixedWindowRateLimiterOptions
+    {
+        AutoReplenishment = true,
+        PermitLimit = 2,
+        QueueLimit = 0,
+        Window = TimeSpan.FromSeconds(10)
+    }));
 });
 
 #endregion
