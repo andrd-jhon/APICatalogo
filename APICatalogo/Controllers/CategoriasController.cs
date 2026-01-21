@@ -19,14 +19,14 @@ using X.PagedList;
 
 namespace APICatalogo.Controllers
 {
-    //[EnableCors("OrigensComAcessoPermitido")]
+    [EnableCors("OrigensComAcessoPermitido")]
     [Route("[controller]")]
     [ApiController]
-    [EnableRateLimiting("fixedWindow")]
+    //[EnableRateLimiting("fixedWindow")]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _unityOfWork;
-        private readonly CustomerLogger _logger;
+        private readonly CustomerLogger? _logger;
         private readonly IMapper _mapper;
 
         public CategoriasController(IUnitOfWork unityOfWork, IMapper mapper)
@@ -36,7 +36,7 @@ namespace APICatalogo.Controllers
         }
 
         //[DisableRateLimiting]
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> Get()
         {
@@ -71,19 +71,19 @@ namespace APICatalogo.Controllers
         {
             if (categoriaDTO is null)
             {
-                _logger.LogWarning($"Dados inválidos.");
+                _logger!.LogWarning($"Dados inválidos.");
                 return BadRequest();
             }
 
             var categoria = categoriaDTO.ToCategoria();
 
-            var categoriaCriada = _unityOfWork.CategoriaRepository.Create(categoria);
+            var categoriaCriada = _unityOfWork.CategoriaRepository.Create(categoria!);
 
             await _unityOfWork.CommitAsync();
 
             var retornoCategoriaDTO = categoriaCriada.ToCategoriaDTO();
 
-            return new CreatedAtRouteResult("ObterCategoria", new { id = retornoCategoriaDTO.CategoriaId }, retornoCategoriaDTO);
+            return new CreatedAtRouteResult("ObterCategoria", new { id = retornoCategoriaDTO!.CategoriaId }, retornoCategoriaDTO);
         }
 
         [Authorize(Policy = "AdminOrOwner")]
@@ -161,7 +161,7 @@ namespace APICatalogo.Controllers
         public async Task<ActionResult<IEnumerable<CategoriaDTO>>> GetCategoriasFiltradas([FromQuery] CategoriasFiltroNome categoriasFiltro)
         {
             var categorias = await _unityOfWork.CategoriaRepository.GetCategoriasFiltroNomeAsync(categoriasFiltro);
-            var teste = "commit teste";
+
             return ObterCategorias(categorias);
         }
     }

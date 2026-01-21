@@ -143,16 +143,16 @@ builder.Services.AddAuthorization(options => {
 
 #region Rate Limiting
 
-builder.Services.AddRateLimiter(rateLimiteOptions =>
+builder.Services.AddRateLimiter(rateLimiterOptions =>
 {
-    rateLimiteOptions.AddFixedWindowLimiter(policyName: "fixedWindow", options =>
+    rateLimiterOptions.AddFixedWindowLimiter(policyName: "fixedWindow", options =>
     {
         options.PermitLimit = 1;
         options.Window = TimeSpan.FromSeconds(5);
         options.QueueLimit = 0;
     });
 
-    rateLimiteOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -165,7 +165,7 @@ builder.Services.AddRateLimiter(options =>
     factory: partition => new FixedWindowRateLimiterOptions
     {
         AutoReplenishment = true,
-        PermitLimit = 2,
+        PermitLimit = 5,
         QueueLimit = 0,
         Window = TimeSpan.FromSeconds(10)
     }));
@@ -209,6 +209,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
@@ -220,6 +221,8 @@ app.UseRouting();
 app.UseRateLimiter();
 
 app.UseCors("OrigensComAcessoPermitido");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
