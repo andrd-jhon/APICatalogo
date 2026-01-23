@@ -11,6 +11,6 @@
         public int TokenLimit { get; set; } = 10;
         public int TokenLimit2 { get; set; } = 20;
         public int TokensPerPeriod { get; set; } = 20;
-        public int AutoReplenishment { get; set; } = 20;
+        public bool AutoReplenishment { get; set; } = false;
     }
 }
