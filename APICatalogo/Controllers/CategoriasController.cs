@@ -22,7 +22,7 @@ namespace APICatalogo.Controllers
     [EnableCors("OrigensComAcessoPermitido")]
     [Route("[controller]")]
     [ApiController]
-    //[EnableRateLimiting("fixedWindow")]
+    [EnableRateLimiting("fixedWindow")]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _unityOfWork;
