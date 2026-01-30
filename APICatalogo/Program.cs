@@ -51,7 +51,23 @@ builder.Services.AddCors(options => options.AddPolicy("OrigensComAcessoPermitido
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "apicatalogo", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { 
+        Title = "apicatalogo", 
+        Version = "v1",
+        Description = "Catálogo de produtos e Categorias",
+        TermsOfService = new Uri("https://teste.com/joao"),
+        Contact = new OpenApiContact
+        {
+            Name = "João",
+            Email = "joao.sant@outlook.com",
+            Url = new Uri ("https://www.joaoandrade.com")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "Usar sobre LICX",
+            Url = new Uri("https://joao.net/license")
+        }
+    });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
@@ -236,6 +252,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "ApiCatalogo");
+    });
+
     app.UseSwaggerUI();
     app.UseDeveloperExceptionPage();
 }
