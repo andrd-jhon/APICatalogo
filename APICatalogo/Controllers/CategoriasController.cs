@@ -35,6 +35,11 @@ namespace APICatalogo.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Obtem uma lista de categorias
+        /// </summary>
+        /// <returns>Umas lista de objetos de Categoria</returns>
+
         //[DisableRateLimiting]
         //[Authorize]
         [HttpGet]
@@ -50,6 +55,12 @@ namespace APICatalogo.Controllers
             return Ok(categoriasDTO);
         }
 
+        /// <summary>
+        /// Obtem uma categoria pelo seu Id
+        /// </summary>
+        /// <param name="id">
+        /// <returns>Um objeto Categoria</returns>
+
         //[Authorize(Policy = "AdminOrOwner")]
         [DisableCors]
         [HttpGet("{id:int}", Name = "ObterCategoria")]
@@ -64,6 +75,23 @@ namespace APICatalogo.Controllers
 
             return Ok(categoriaDTO);
         }
+
+        /// <summary>
+        /// Inclui uma nova categoria
+        /// </summary>
+        /// <remarks>
+        /// Exemplo de request:
+        ///
+        ///     POST api/categorias
+        ///     {
+        ///        "categoriaId": 1,
+        ///        "nome": "categoria1",
+        ///        "imagemUrl": "http://teste.net/1.jpg"
+        ///     }
+        /// </remarks>
+        /// <param name="categoriaDto">objeto Categoria</param>
+        /// <returns>O objeto Categoria incluida</returns>
+        /// <remarks>Retorna um objeto Categoria incluído</remarks>
 
         [Authorize(Policy = "OwnerOnly")]
         [HttpPost]
