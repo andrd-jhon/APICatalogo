@@ -23,6 +23,7 @@ namespace APICatalogo.Controllers
     [Route("[controller]")]
     [ApiController]
     [EnableRateLimiting("fixedWindow")]
+    [Produces("application/json")]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _unityOfWork;
@@ -64,6 +65,8 @@ namespace APICatalogo.Controllers
         //[Authorize(Policy = "AdminOrOwner")]
         [DisableCors]
         [HttpGet("{id:int}", Name = "ObterCategoria")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<CategoriaDTO> Get(int id)
         {
             var categoria = _unityOfWork.CategoriaRepository.Get(p => p.CategoriaId == id);
@@ -114,6 +117,7 @@ namespace APICatalogo.Controllers
             return new CreatedAtRouteResult("ObterCategoria", new { id = retornoCategoriaDTO!.CategoriaId }, retornoCategoriaDTO);
         }
 
+        #pragma warning disable CS1591
         [Authorize(Policy = "AdminOrOwner")]
         [HttpPut]
         public async Task<ActionResult<CategoriaDTO>> Put(CategoriaDTO categoriaDTO)
