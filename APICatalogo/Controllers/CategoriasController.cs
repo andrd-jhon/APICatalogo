@@ -24,6 +24,7 @@ namespace APICatalogo.Controllers
     [ApiController]
     [EnableRateLimiting("fixedWindow")]
     [Produces("application/json")]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class CategoriasController : ControllerBase
     {
         private readonly IUnitOfWork _unityOfWork;
@@ -120,6 +121,7 @@ namespace APICatalogo.Controllers
         #pragma warning disable CS1591
         [Authorize(Policy = "AdminOrOwner")]
         [HttpPut]
+        //[ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))]
         public async Task<ActionResult<CategoriaDTO>> Put(CategoriaDTO categoriaDTO)
         {
             if (categoriaDTO is null)
