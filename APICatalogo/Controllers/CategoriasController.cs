@@ -68,9 +68,9 @@ namespace APICatalogo.Controllers
         [HttpGet("{id:int}", Name = "ObterCategoria")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<CategoriaDTO> Get(int id)
+        public async Task<ActionResult<CategoriaDTO>> Get(int id)
         {
-            var categoria = _unityOfWork.CategoriaRepository.Get(p => p.CategoriaId == id);
+            var categoria = await _unityOfWork.CategoriaRepository.Get(p => p.CategoriaId == id);
 
             if (categoria is null)
                 return StatusCode(404);

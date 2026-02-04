@@ -3,6 +3,7 @@ using APICatalogo.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace APICatalogo.Repositories
 {
@@ -21,9 +22,9 @@ namespace APICatalogo.Repositories
         {
             return _context.Set<T>().AsNoTracking();
         }
-        public T? Get(Expression<Func<T, bool>> predicate)
+        public async Task<T?> Get(Expression<Func<T, bool>> predicate)
         {
-            return _context.Set<T>().AsNoTracking().FirstOrDefault(predicate);
+            return await _context.Set<T>().AsNoTracking().FirstOrDefaultAsync(predicate);
         }
         public T Create(T entity)
         {
@@ -32,11 +33,11 @@ namespace APICatalogo.Repositories
 
             return entity;
         }
-        public T Update(T entity)
+        public async Task<T> Update(T entity)
         {
             _context.Set<T>().Update(entity);
-            //_context.Entry(entity).State = EntityState.Modified;
-            //_context.SaveChanges();
+
+            await _context.SaveChangesAsync();
 
             return entity;
         }

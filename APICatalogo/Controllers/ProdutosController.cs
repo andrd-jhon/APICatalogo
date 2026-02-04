@@ -18,17 +18,18 @@ namespace APICatalogo.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [ApiConventionType(typeof(DefaultApiConventions))]
     public class ProdutosController : ControllerBase
     {
         //private readonly IRepository<Produto> _repository;
-        private readonly IProdutoRepository _produtoRepository;
+        //private readonly IProdutoRepository _produtoRepository;
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public ProdutosController(/*IRepository<Produto> repository,*/ IProdutoRepository produtoRepository, IUnitOfWork uow, IMapper mapper)
+        public ProdutosController(/*IRepository<Produto> repository,*//* IProdutoRepository produtoRepository,*/ IUnitOfWork uow, IMapper mapper)
         {
             //_repository = repository;
-            _produtoRepository = produtoRepository;
+            //_produtoRepository = produtoRepository;
             _uow = uow;
             _mapper = mapper;
         }
@@ -40,7 +41,7 @@ namespace APICatalogo.Controllers
             if (patchProdutoDTO is null || id <= 0)
                 return BadRequest();
 
-            var produto = _uow.ProdutoRepository.Get(p => p.ProdutoId == id);
+            var produto = await _uow.ProdutoRepository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
                 return NotFound();
@@ -54,7 +55,6 @@ namespace APICatalogo.Controllers
 
             _mapper.Map(produtoDTOUpdateRequest, produto);
             _uow.ProdutoRepository.Update(produto);
-            await _uow.CommitAsync();
 
             return Ok(_mapper.Map<ProdutoDTOUpdateResponse>(produto));
         }
@@ -66,7 +66,7 @@ namespace APICatalogo.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var produtos = await _produtoRepository.GetProdutosByCategoriaId(id);
+            var produtos = await _uow.ProdutoRepository.GetProdutosByCategoriaId(id);
 
             if (produtos is null)
                 return NotFound();
@@ -91,12 +91,12 @@ namespace APICatalogo.Controllers
         }
 
         [HttpGet("{id}", Name = "ObterProduto")]
-        public ActionResult<ProdutoDTO> Get(int id)
+        public async Task<ActionResult<ProdutoDTO>> Get(int id)
         {
             if (id <= 0)
                 return BadRequest();
 
-            var produto = _produtoRepository.Get(p => p.ProdutoId == id);
+            var produto = await _uow.ProdutoRepository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
                 return NotFound();
@@ -131,7 +131,7 @@ namespace APICatalogo.Controllers
 
             var produto = _mapper.Map<Produto>(produtoDTO);
 
-            produto = _produtoRepository.Update(produto);
+            produto = await _uow.ProdutoRepository.Update(produto);
 
             await _uow.CommitAsync();
 
@@ -147,7 +147,7 @@ namespace APICatalogo.Controllers
             if (id <= 0)
                 return BadRequest("Código de produto inválido!");
 
-            var produto = _produtoRepository.Delete(id);
+            var produto = _uow.ProdutoRepository.Delete(id);
 
             if (produto is null)
                 return NotFound("Produto não encontrado!");
