@@ -90,6 +90,9 @@ namespace APICatalogo.Controllers
             return Ok(produtosDTO);
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}", Name = "ObterProduto")]
         public async Task<ActionResult<ProdutoDTO>> Get(int id)
         {
@@ -99,13 +102,15 @@ namespace APICatalogo.Controllers
             var produto = await _uow.ProdutoRepository.Get(p => p.ProdutoId == id);
 
             if (produto is null)
-                return NotFound();
+                return NotFound("Produto não encontrado.");
 
             var produtoDTO = _mapper.Map<ProdutoDTO>(produto);
 
             return Ok(produtoDTO);
         }
 
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [HttpPost]
         public async Task<ActionResult<ProdutoDTO>> Post(ProdutoDTO produtoDTO)
         {
