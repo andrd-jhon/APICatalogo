@@ -74,3 +74,4 @@ secrets.json
 
 # Publicação
 publish/
+/APICatalogoXUnit/UnitTests/PostProdutosUnitTest.cs
