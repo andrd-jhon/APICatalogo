@@ -26,8 +26,8 @@ namespace APICatalogoXUnit.UnitTests
             var novoProdutoDto = new ProdutoDTO
             {
                 Nome = "Novo Produto",
-                Descricao = "Descrição do Novo Produto",asdasd
-                Preco = 10.99m,
+                Descricao = "Descrição do Novo Produto",
+                Preco = 10.99,
                 ImagemUrl = "imagemfake1.jpg",
                 CategoriaId = 2
             };

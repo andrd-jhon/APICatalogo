@@ -8,7 +8,7 @@ namespace APICatalogo.DTOs
         public int ProdutoId { get; set; }
 
         [Required(ErrorMessage = "O nome é obrigatório.")]
-        [StringLength(20, ErrorMessage = "O nome deve ter entre 5 e 20 carácteres.", MinimumLength = 5)]
+        //[StringLength(20, ErrorMessage = "O nome deve ter entre 5 e 20 carácteres.", MinimumLength = 5)]
         public string? Nome { get; set; }
 
         [Required]
@@ -16,7 +16,7 @@ namespace APICatalogo.DTOs
         public string? Descricao { get; set; }
 
         [Required]
-        public decimal Preco { get; set; }
+        public double Preco { get; set; }
 
         [Required]
         [StringLength(300, MinimumLength = 10)]

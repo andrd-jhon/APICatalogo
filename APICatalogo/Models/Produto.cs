@@ -11,7 +11,7 @@ namespace APICatalogo.Models
         [Key]
         public int ProdutoId { get; set; }
         [Required(ErrorMessage = "O nome é obrigatório.")]
-        [StringLength(20, ErrorMessage = "O nome deve ter entre 5 e 20 carácteres.", MinimumLength = 5)]
+        //[StringLength(20, ErrorMessage = "O nome deve ter entre 5 e 20 carácteres.", MinimumLength = 5)]
         //[PrimeiraLetraMaiuscula]
         public string? Nome { get; set; }
         [Required]
@@ -20,7 +20,7 @@ namespace APICatalogo.Models
         [Required]
         [Column(TypeName = "decimal(10,2)")]
         [Range(1, 1000, ErrorMessage = "O Preço deve estar entre o valor {1} e {2}.")]
-        public decimal Preco { get; set; }
+        public double Preco { get; set; }
         [Required]
         [StringLength(300, MinimumLength = 10)]
         public string? ImagemUrl { get; set; }
